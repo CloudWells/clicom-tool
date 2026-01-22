@@ -5,6 +5,7 @@ function clicom() {
     local PYTHON="$INSTALL_DIR/venv/bin/python3"
     local YOLO_FILE="/tmp/clicom_yolo_$USER"
     local MODEL_FILE="/tmp/clicom_model_$USER"
+    local PROMPT_FILE="$INSTALL_DIR/config/custom_prompt.txt"
     
     # Default model
     local CURRENT_MODEL="gemini-3-flash-preview"
@@ -24,6 +25,7 @@ function clicom() {
         echo -e "  \033[92m-ai\033[0m           Analyst mode: Run command + get AI opinion"
         echo -e "  \033[92m-fix\033[0m          Analyze logs and history to suggest a fix"
         echo -e "  \033[92m-wtf\033[0m          Explain the last terminal error or state"
+        echo -e "  \033[92m-prompt\033[0m       Edit global AI instructions (persona)"
         echo -e "  \033[92m-h, --history\033[0m  Include recent command history context"
         echo -e "  \033[92m-log on/off\033[0m   Toggle session recording"
         echo -e "  \033[92m-yolo on/off\033[0m  Toggle no-confirmation mode"
@@ -51,7 +53,14 @@ function clicom() {
         return
     fi
 
-    # 4. MODEL SELECTION
+    # 4. PROMPT EDITING
+    if [[ "$1" == "-prompt" ]]; then
+        local editor=${EDITOR:-nano}
+        sudo $editor "$PROMPT_FILE"
+        return
+    fi
+
+    # 5. MODEL SELECTION
     if [[ "$1" == "-model" ]]; then
         if [ -n "$2" ]; then
             echo "$2" > "$MODEL_FILE"
@@ -62,7 +71,7 @@ function clicom() {
         return
     fi
 
-    # 5. UPDATE
+    # 6. UPDATE
     if [[ "$1" == "-update" ]]; then
         echo "[*] Updating Clicom..."
         local OLD_PWD=$(pwd)
@@ -74,7 +83,7 @@ function clicom() {
         return
     fi
 
-    # 6. COMMAND GENERATION
+    # 7. COMMAND GENERATION
     local cmd
     local history_context=""
     local is_ai_mode=false
@@ -89,7 +98,7 @@ function clicom() {
         history_context=$(history | tail -n 20 | sed 's/^[ 0-9]*//')
     fi
 
-    # Special handling for -wtf: print directly, do not capture
+    # Special handling for -wtf
     if [[ "$*" == *"-wtf"* ]]; then
         if [ -n "$history_context" ]; then
             echo "$history_context" | "$PYTHON" "$INSTALL_DIR/src/main.py" "-model" "$CURRENT_MODEL" "$@"
@@ -99,7 +108,7 @@ function clicom() {
         return 0
     fi
 
-    # Normal command generation: capture output
+    # Normal command generation
     if [ -n "$history_context" ]; then
         cmd=$(echo "$history_context" | "$PYTHON" "$INSTALL_DIR/src/main.py" "-model" "$CURRENT_MODEL" "$@")
     else

@@ -8,6 +8,8 @@ from rich.console import Console
 from rich.markdown import Markdown
 
 LOG_FILE = "/tmp/clicom_monitor.log"
+CONFIG_DIR = "/opt/clicom/config"
+CUSTOM_PROMPT_FILE = f"{CONFIG_DIR}/custom_prompt.txt"
 console = Console()
 
 # VPN Support
@@ -17,33 +19,45 @@ for key in proxy_vars:
     if val and val.startswith('socks://'):
         os.environ[key] = val.replace('socks://', 'socks5://')
 
+def get_custom_prompt():
+    if os.path.exists(CUSTOM_PROMPT_FILE):
+        try:
+            with open(CUSTOM_PROMPT_FILE, 'r') as f:
+                return f.read().strip()
+        except: 
+            return ""
+    return ""
+
 def get_gemini_response(prompt, mode="command", model_name="gemini-3-flash-preview"):
     api_key = os.environ.get("GOOGLE_API_KEY")
     if not api_key:
         sys.stderr.write("\033[91mError: GOOGLE_API_KEY not set.\033[0m\n")
         sys.exit(1)
 
+    custom_persona = get_custom_prompt()
+    base_instruction = f"Global Persona/Instructions: {custom_persona}\n\n" if custom_persona else ""
+
     try:
         client = genai.Client(api_key=api_key)
         
         if mode == "explain":
-            sys_instruction = (
+            sys_instruction = base_instruction + (
                 "You are a concise Linux terminal expert. "
                 "Analyze logs and provide a punchy explanation. "
                 "Use Markdown. Always warn about leaked keys in logs."
             )
         elif mode == "opinion":
-            sys_instruction = (
+            sys_instruction = base_instruction + (
                 "You are a Linux system analyst. "
                 "Review the provided command output and the user's original intent. "
                 "Provide a short, expert opinion/analysis on the results. "
                 "Use Markdown for formatting."
             )
         else:
-            sys_instruction = (
+            sys_instruction = base_instruction + (
                 "You are a CLI command generator. "
                 "Convert request to a single Shell command. "
-                "Output ONLY the raw command. No markdown, no explanations."
+                "Output ONLY the raw command. No markdown, no backticks, no explanations."
             )
 
         response = client.models.generate_content(
@@ -80,7 +94,7 @@ def main():
     parser.add_argument("-fix", action="store_true")
     parser.add_argument("-h", "--history", action="store_true")
     parser.add_argument("-wtf", action="store_true")
-    parser.add_argument("-opinion", type=str, default=None) # New mode for analysis
+    parser.add_argument("-opinion", type=str, default=None)
     parser.add_argument("-model", type=str, default="gemini-3-flash-preview")
     
     args = parser.parse_args()
@@ -90,7 +104,6 @@ def main():
         sys.exit(0)
 
     if args.opinion:
-        # Opinion mode: analyze provided output
         prompt = f"User Intent: {user_query}\n\nCommand Output to analyze:\n{args.opinion}"
         result = get_gemini_response(prompt, "opinion", args.model)
         console.print(Markdown(result))

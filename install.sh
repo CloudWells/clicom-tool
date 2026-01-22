@@ -32,8 +32,13 @@ fi
 echo "[*] Setting up directory..."
 mkdir -p "$INSTALL_DIR/src"
 mkdir -p "$INSTALL_DIR/repo"
+mkdir -p "$INSTALL_DIR/config"
 
-# Copy full repo for -update feature
+# Create default custom prompt if not exists
+if [ ! -f "$INSTALL_DIR/config/custom_prompt.txt" ]; then
+    echo "You are a professional Linux assistant." > "$INSTALL_DIR/config/custom_prompt.txt"
+fi
+
 cp -r . "$INSTALL_DIR/repo/"
 
 if [ ! -d "$INSTALL_DIR/venv" ]; then
@@ -49,7 +54,6 @@ chmod +x "$INSTALL_DIR/src/main.py"
 chmod +x "$INSTALL_DIR/src/recorder.py"
 chmod +x "$INSTALL_DIR/uninstall.sh"
 
-# Source injection
 SOURCE_LINE="source $INSTALL_DIR/src/wrapper.sh"
 
 setup_rc() {
@@ -64,4 +68,4 @@ setup_rc "$BASHRC"
 setup_rc "$ZSHRC"
 
 echo "=== Installation Successful ==="
-echo "Restart your terminal or run: source ~/.bashrc (or ~/.zshrc)"
+echo "Restart your terminal or run: source ~/.bashrc"
