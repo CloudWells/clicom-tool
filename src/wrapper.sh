@@ -78,7 +78,7 @@ function clicom() {
         sudo git config --global --add safe.directory "$INSTALL_DIR/repo"
         cd "$INSTALL_DIR/repo" || { echo "Update error: repo not found."; return 1; }
         sudo git pull origin main
-        sudo ./install.sh
+        sudo bash install.sh
         cd "$OLD_PWD"
         echo "Update complete. Please restart terminal."
         return
