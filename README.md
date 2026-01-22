@@ -7,6 +7,7 @@ Terminal assistant on steroids. Uses Gemini Flash to turn your thoughts into com
 ```bash
 git clone https://github.com/CloudWells/clicom-tool.git
 cd clicom-tool
+chmod +x install.sh
 sudo ./install.sh
 source ~/.bashrc
 ```
