@@ -1,6 +1,4 @@
-# Clicom 🧠
-
-Terminal assistant on steroids. Uses Gemini Flash to turn your thoughts into commands, fix your mess, and explain the unexplainable. Fully autonomous with its own terminal recorder and AI analyst mode.
+Terminal assistant on steroids. Uses Gemini Flash to turn your thoughts into commands, fix your mess, and explain the unexplainable. Fully autonomous with its own terminal recorder and AI analyst mode. Works on Linux & macOS.
 
 ## Quick Start
 

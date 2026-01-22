@@ -3,30 +3,52 @@ set -e
 
 INSTALL_DIR="/opt/clicom"
 USER_HOME=$(eval echo ~$SUDO_USER)
-BASHRC="$USER_HOME/.bashrc"
-ZSHRC="$USER_HOME/.zshrc"
+OS_TYPE=$(uname)
+
+# Determine shell config files
+if [ "$OS_TYPE" == "Darwin" ]; then
+    BASHRC="$USER_HOME/.bash_profile"
+    ZSHRC="$USER_HOME/.zshrc"
+else
+    BASHRC="$USER_HOME/.bashrc"
+    ZSHRC="$USER_HOME/.zshrc"
+fi
 
 if [ "$EUID" -ne 0 ]; then
   echo "Run as root: sudo bash install.sh"
   exit 1
 fi
 
+echo "[*] Detecting System: $OS_TYPE"
+
+# 1. Install Dependencies
 echo "[*] Installing dependencies..."
 if command -v dnf &> /dev/null; then
     dnf install -y python3 python3-pip git
 elif command -v apt-get &> /dev/null; then
     apt-get update && apt-get install -y python3-venv python3-pip git
+elif [ "$OS_TYPE" == "Darwin" ]; then
+    # macOS handling
+    if ! command -v brew &> /dev/null; then
+        echo "Error: Homebrew not found. Please install it first: https://brew.sh"
+        exit 1
+    fi
+    # On macOS, we usually don't sudo brew. Run as SUDO_USER
+    sudo -u "$SUDO_USER" brew install python git || true
+else
+    echo "Warning: Unknown system. Ensure python3 and git are installed."
 fi
 
 echo "[*] Setting up directories..."
 mkdir -p "$INSTALL_DIR/src"
 mkdir -p "$INSTALL_DIR/repo"
 mkdir -p "$INSTALL_DIR/config"
+chown -R "$SUDO_USER" "$INSTALL_DIR" # Ensure user can manage their repo/config
 
 # Fix git safe directory
-git config --global --add safe.directory "$INSTALL_DIR/repo"
+sudo -u "$SUDO_USER" git config --global --add safe.directory "$INSTALL_DIR/repo"
 
-# API KEY SETUP via .env file
+# API KEY SETUP
 ENV_FILE="$INSTALL_DIR/config/.env"
 if [ ! -f "$ENV_FILE" ]; then
     if [ -n "$GOOGLE_API_KEY" ]; then
@@ -36,29 +58,33 @@ if [ ! -f "$ENV_FILE" ]; then
         read -r API_KEY
         if [ -n "$API_KEY" ]; then
             echo "GOOGLE_API_KEY=\"$API_KEY\"" > "$ENV_FILE"
-            echo "[*] API Key saved to $ENV_FILE"
         fi
     fi
 fi
-chmod 600 "$ENV_FILE" # Protect secrets
+chmod 600 "$ENV_FILE"
+chown "$SUDO_USER" "$ENV_FILE"
 
 # Create default custom prompt
 if [ ! -f "$INSTALL_DIR/config/custom_prompt.txt" ]; then
-    echo "You are a professional Linux assistant." > "$INSTALL_DIR/config/custom_prompt.txt"
+    echo "You are a professional Linux/macOS assistant." > "$INSTALL_DIR/config/custom_prompt.txt"
+    chown "$SUDO_USER" "$INSTALL_DIR/config/custom_prompt.txt"
 fi
 
-# Copy repo (skip if already in repo)
+# Copy repo
 if [ "$(realpath .)" != "$(realpath "$INSTALL_DIR/repo")" ]; then
     cp -r . "$INSTALL_DIR/repo/"
+    chown -R "$SUDO_USER" "$INSTALL_DIR/repo"
 fi
 
+# VENV Setup
 if [ ! -d "$INSTALL_DIR/venv" ]; then
-    python3 -m venv "$INSTALL_DIR/venv"
+    sudo -u "$SUDO_USER" python3 -m venv "$INSTALL_DIR/venv"
 fi
 
-"$INSTALL_DIR/venv/bin/pip" install --upgrade pip > /dev/null
-"$INSTALL_DIR/venv/bin/pip" install -r requirements.txt
+sudo -u "$SUDO_USER" "$INSTALL_DIR/venv/bin/pip" install --upgrade pip > /dev/null
+sudo -u "$SUDO_USER" "$INSTALL_DIR/venv/bin/pip" install -r requirements.txt
 
+# Copy source files
 cp src/main.py src/recorder.py src/wrapper.sh "$INSTALL_DIR/src/"
 cp uninstall.sh "$INSTALL_DIR/"
 chmod +x "$INSTALL_DIR/src/main.py"
@@ -79,4 +105,4 @@ setup_rc "$BASHRC"
 setup_rc "$ZSHRC"
 
 echo "=== Installation Successful ==="
-echo "Restart terminal or run: source ~/.bashrc"
+echo "Restart terminal or run: source $BASHRC (or $ZSHRC)"
