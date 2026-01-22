@@ -34,12 +34,13 @@ mkdir -p "$INSTALL_DIR/src"
 mkdir -p "$INSTALL_DIR/repo"
 mkdir -p "$INSTALL_DIR/config"
 
-# Create default custom prompt if not exists
-if [ ! -f "$INSTALL_DIR/config/custom_prompt.txt" ]; then
-    echo "You are a professional Linux assistant." > "$INSTALL_DIR/config/custom_prompt.txt"
-fi
+# Fix git safe directory
+git config --global --add safe.directory "$INSTALL_DIR/repo"
 
-cp -r . "$INSTALL_DIR/repo/"
+# Copy full repo for -update feature (skip if already in repo)
+if [ "$(realpath .)" != "$(realpath "$INSTALL_DIR/repo")" ]; then
+    cp -r . "$INSTALL_DIR/repo/"
+fi
 
 if [ ! -d "$INSTALL_DIR/venv" ]; then
     python3 -m venv "$INSTALL_DIR/venv"
