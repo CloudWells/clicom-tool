@@ -1,4 +1,6 @@
-Terminal assistant on steroids. Uses Gemini Flash to turn your thoughts into commands, fix your mess, and explain the unexplainable. Fully autonomous with its own terminal recorder and AI analyst mode. Works on Linux & macOS.
+# Clicom 🧠
+
+Terminal assistant on steroids. Uses Gemini Flash to turn your thoughts into commands, fix your mess, and explain the unexplainable. Fully autonomous with its own terminal recorder and AI analyst mode. **Works on Linux & macOS.**
 
 ## Quick Start
 
@@ -6,14 +8,11 @@ Terminal assistant on steroids. Uses Gemini Flash to turn your thoughts into com
 git clone https://github.com/CloudWells/clicom-tool.git
 cd clicom-tool
 sudo bash install.sh
-source ~/.bashrc
+source ~/.bashrc # or source ~/.zshrc / source ~/.bash_profile
 ```
-*The installer will ask for your Google API Key and save it to `/opt/clicom/config/.env` automatically.*
+*The installer will ask for your Google API Key and save it to `/opt/clicom/config/.env` automatically. On macOS, ensure [Homebrew](https://brew.sh) is installed.*
 
-## Configuration
-
-- **API Key & Settings**: Stored in `/opt/clicom/config/.env`
-- **AI Persona**: Stored in `/opt/clicom/config/custom_prompt.txt` (edit via `clicom -prompt`)
+## Power Usage
 
 - **Just ask**: `clicom find all docker containers using more than 1GB RAM`
 - **AI Analyst**: `clicom -ai "why is my disk full?"` (Runs analysis commands + provides expert opinion)
@@ -25,10 +24,16 @@ source ~/.bashrc
 
 ## Features
 
+- **Cross-Platform**: Full support for **Linux** (Ubuntu, Fedora, Arch, etc.) and **macOS**.
 - **Rich Formatting**: Beautiful Markdown rendering for explanations and analysis.
 - **Model Switching**: Easily switch between `flash`, `pro`, or `preview` models.
 - **Auto-Update**: Keep your tool fresh with `clicom -update`.
 - **Zsh & Bash**: Full support for both major shells.
+
+## Configuration
+
+- **API Key & Settings**: Stored in `/opt/clicom/config/.env`
+- **AI Persona**: Stored in `/opt/clicom/config/custom_prompt.txt` (edit via `clicom -prompt`)
 
 ## Flags
 
