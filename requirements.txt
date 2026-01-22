@@ -1,3 +1,4 @@
 google-genai
 httpx[socks]
 rich
+python-dotenv

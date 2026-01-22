@@ -6,10 +6,17 @@ from google import genai
 from google.genai import types
 from rich.console import Console
 from rich.markdown import Markdown
+from dotenv import load_dotenv
 
 LOG_FILE = "/tmp/clicom_monitor.log"
 CONFIG_DIR = "/opt/clicom/config"
 CUSTOM_PROMPT_FILE = f"{CONFIG_DIR}/custom_prompt.txt"
+ENV_FILE = f"{CONFIG_DIR}/.env"
+
+# Load environment variables from config directory
+if os.path.exists(ENV_FILE):
+    load_dotenv(ENV_FILE)
+
 console = Console()
 
 # VPN Support
@@ -24,7 +31,7 @@ def get_custom_prompt():
         try:
             with open(CUSTOM_PROMPT_FILE, 'r') as f:
                 return f.read().strip()
-        except: 
+        except:
             return ""
     return ""
 
@@ -32,6 +39,7 @@ def get_gemini_response(prompt, mode="command", model_name="gemini-3-flash-previ
     api_key = os.environ.get("GOOGLE_API_KEY")
     if not api_key:
         sys.stderr.write("\033[91mError: GOOGLE_API_KEY not set.\033[0m\n")
+        sys.stderr.write(f"\033[90mCheck your shell environment or {ENV_FILE}\033[0m\n")
         sys.exit(1)
 
     custom_persona = get_custom_prompt()

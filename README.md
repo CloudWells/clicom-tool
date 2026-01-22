@@ -10,9 +10,12 @@ cd clicom-tool
 sudo bash install.sh
 source ~/.bashrc
 ```
-*The installer will ask for your Google API Key and set everything up automatically.*
+*The installer will ask for your Google API Key and save it to `/opt/clicom/config/.env` automatically.*
 
-## Power Usage
+## Configuration
+
+- **API Key & Settings**: Stored in `/opt/clicom/config/.env`
+- **AI Persona**: Stored in `/opt/clicom/config/custom_prompt.txt` (edit via `clicom -prompt`)
 
 - **Just ask**: `clicom find all docker containers using more than 1GB RAM`
 - **AI Analyst**: `clicom -ai "why is my disk full?"` (Runs analysis commands + provides expert opinion)
