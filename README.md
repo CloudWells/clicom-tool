@@ -20,6 +20,7 @@ source ~/.bashrc
 - **Fix shit**: `clicom -fix` (Analyzes logs of your failed command and suggests a fix)
 - **What happened?**: `clicom -wtf` (Explains the last terminal output with beautiful formatting)
 - **YOLO Mode**: `clicom -yolo on` (Executes commands immediately without asking)
+- **Custom Persona**: `clicom -prompt` (Set global instructions, e.g., "be concise and rude")
 - **Record session**: `clicom -log on` (Internal Python-based recorder for deep context)
 
 ## Features
@@ -34,6 +35,7 @@ source ~/.bashrc
 - `-ai`: **Analyst Mode**. Runs commands and explains the result.
 - `-fix`: Analyze logs + history -> suggest a fix.
 - `-wtf`: Explain the current terminal state/error.
+- `-prompt`: Edit global AI instructions/persona.
 - `-h`: Include last 20 commands for context.
 - `-model [name]`: Switch the underlying Gemini model.
 - `-yolo on/off`: Enable "no-confirmation" mode.
